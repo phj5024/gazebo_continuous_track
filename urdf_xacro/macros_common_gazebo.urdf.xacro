@@ -165,6 +165,13 @@
         </xacro:make_polyline_visual>
     </xacro:macro>
 
+    <xacro:macro name="make_cylinder_element" params="pose:=^|'0 0 0 0 0 0' length:=^ radius:=^ mu:=^|0.5 min_depth:=^|0.01 *material">
+        <xacro:make_cylinder_collision />
+        <xacro:make_cylinder_visual>
+            <xacro:insert_block name="material" />
+        </xacro:make_cylinder_visual>
+    </xacro:macro>
+
     <!-- macros for populating general links/joints -->
 
     <xacro:macro name="populate_links" params="name_prefix:=^ x:=^|0 y:=^|0 z:=^|0 roll:=^|0 pitch:=^|0 yaw:=^|0 dx:=^|0 dy:=^|0 dz:=^|0 droll:=^|0 dpitch:=^|0 dyaw:=^|0 i:=0 count:=^ **template">
