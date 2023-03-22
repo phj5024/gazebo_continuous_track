@@ -36,6 +36,7 @@
                 <contact>
                     <ode>
                         <min_depth>${min_depth}</min_depth>
+                        <max_vel>0</max_vel>
                     </ode>
                 </contact>
             </surface>
@@ -88,6 +89,7 @@
                 <contact>
                     <ode>
                         <min_depth>${min_depth}</min_depth>
+                        <max_vel>0</max_vel>
                     </ode>
                 </contact>
             </surface>
@@ -124,6 +126,7 @@
                 <contact>
                     <ode>
                         <min_depth>${min_depth}</min_depth>
+                        <max_vel>0</max_vel>
                     </ode>
                 </contact>
             </surface>
