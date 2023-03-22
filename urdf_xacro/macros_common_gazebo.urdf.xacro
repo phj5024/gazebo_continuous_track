@@ -173,6 +173,14 @@
     </xacro:macro>
 
     <!-- macros for populating general links/joints -->
+    <xacro:macro name="populate_link" params="name_prefix:=^ x:=^|0 y:=^|0 z:=^|0 roll:=^|0 pitch:=^|0 yaw:=^|0 dx:=^|0 dy:=^|0 dz:=^|0 droll:=^|0 dpitch:=^|0 dyaw:=^|0 *template">
+        <gazebo>
+            <link name="${name_prefix}">
+                <pose>${x} ${y} ${z} ${roll} ${pitch} ${yaw}</pose>
+                <xacro:insert_block name="template" />
+            </link>
+        </gazebo>
+    </xacro:macro>
 
     <xacro:macro name="populate_links" params="name_prefix:=^ x:=^|0 y:=^|0 z:=^|0 roll:=^|0 pitch:=^|0 yaw:=^|0 dx:=^|0 dy:=^|0 dz:=^|0 droll:=^|0 dpitch:=^|0 dyaw:=^|0 i:=0 count:=^ **template">
         <xacro:if value="${i &lt; count}">
@@ -210,10 +218,10 @@
 
     <xacro:macro name="make_straight_segment_link_template" params="mass:=^ size_x:=^ size_y:=^ size_z:=^ mu:=^|0.5 min_depth:=^|0.01 *material">
         <xacro:make_box_inertial pose="${size_x / 2} 0 ${-size_z / 2} 0 0 0" />
-        <xacro:make_box_collision pose="${size_x / 2} 0 ${-size_z / 2} 0 0 0" size="${size_x} ${size_y} ${size_z}" />
+        <!-- <xacro:make_box_collision pose="${size_x / 2} 0 ${-size_z / 2} 0 0 0" size="${size_x} ${size_y} ${size_z}" />
         <xacro:make_box_visual pose="${size_x / 2} 0 ${-size_z / 2} 0 0 0" size="${size_x} ${size_y} ${size_z}">
             <xacro:insert_block name="material" />
-        </xacro:make_box_visual>
+        </xacro:make_box_visual> -->
     </xacro:macro>
 
     <xacro:macro name="make_straight_segment_joint_template" params="parent:=^ implicit_spring_damper:=^|1">
@@ -231,10 +239,10 @@
 
     <xacro:macro name="make_arc_segment_link_template" params="mass:=^ length:=^ radius:=^ mu:=^|0.5 min_depth:=^|0.5 *material">
         <xacro:make_cylinder_inertial pose="0 0 ${-radius} ${pi / 2} 0 0" />
-        <xacro:make_cylinder_collision pose="0 0 ${-radius} ${pi / 2} 0 0" />
+        <!-- <xacro:make_cylinder_collision pose="0 0 ${-radius} ${pi / 2} 0 0" />
         <xacro:make_cylinder_visual pose="0 0 ${-radius} ${pi / 2} 0 0">
             <xacro:insert_block name="material" />
-        </xacro:make_cylinder_visual>
+        </xacro:make_cylinder_visual> -->
     </xacro:macro>
 
     <xacro:macro name="make_arc_segment_joint_template" params="parent:=^ radius:=^ implicit_spring_damper:=^|1">
@@ -281,6 +289,58 @@
                 <xacro:make_arc_segment_joint_template />
             </template>
         </xacro:populate_joints>
+    </xacro:macro>
+
+    <xacro:macro name="populate_slope_segments" params="name_prefix:=^ x:=^|0 y:=^|0 z:=^|0 roll:=^|0 pitch:=^|0 yaw:=^|0 dx:=^|0 dy:=^|0 dz:=^|0 droll:=^|0 dpitch:=^|0 dyaw:=^|0 mass:=^ size_x:=^ size_y:=^ size_z:=^ parent:=^ mu:=^|0.5 min_depth:=^|0.01 implicit_spring_damper:=^|1 *material count:=^">
+        <xacro:populate_links name_prefix="${name_prefix}_link">
+            <template>
+                <xacro:make_straight_segment_link_template>
+                    <xacro:insert_block name="material" />
+                </xacro:make_straight_segment_link_template>
+            </template>
+        </xacro:populate_links>
+        <xacro:populate_joints name_prefix="${name_prefix}_joint" type="prismatic" child_prefix="${name_prefix}_link">
+            <template>
+                <xacro:make_straight_segment_joint_template />
+            </template>
+        </xacro:populate_joints>
+    </xacro:macro>
+
+    <xacro:macro name="populate_diffarc_segments" params="name_prefix:=^ x:=^|0 y:=^|0 z:=^|0 roll:=^|0 pitch:=^|0 yaw:=^|0 dx:=^|0 dy:=^|0 dz:=^|0 droll:=^|0 dpitch:=^|0 dyaw:=^|0 mass:=^ length:=^ radius:=^ dradius:=^ parent:=^ mu:=^|0.5 min_depth:=^|0.01 implicit_spring_damper:=^|1 *material count:=^">
+        <gazebo>
+            <link name="${name_prefix}_link0">
+                <pose>${x} ${y} ${z} ${roll} ${pitch} ${yaw}</pose>
+                <xacro:make_arc_segment_link_template radius="${dradius}">
+                    <xacro:insert_block name="material" />
+                </xacro:make_arc_segment_link_template>
+            </link>
+        </gazebo>
+
+        <gazebo>
+            <link name="${name_prefix}_link1">
+                <pose>${x+dx} ${y+dy} ${z+dz} ${roll+droll} ${pitch+dpitch} ${yaw+dyaw}</pose>
+                <xacro:make_arc_segment_link_template radius="${radius}">
+                    <xacro:insert_block name="material" />
+                </xacro:make_arc_segment_link_template>
+            </link>
+        </gazebo>
+
+        <gazebo>
+            <joint name="${name_prefix}_joint0" type="revolute">
+                <child>${name_prefix}_link0</child>
+                <xacro:make_arc_segment_joint_template radius="${dradius}">
+                </xacro:make_arc_segment_joint_template>
+            </joint>
+        </gazebo>
+
+        <gazebo>
+            <joint name="${name_prefix}_joint1" type="revolute">
+                <child>${name_prefix}_link1</child>
+                <xacro:make_arc_segment_joint_template radius="${radius}">
+                </xacro:make_arc_segment_joint_template>
+            </joint>
+        </gazebo>
+
     </xacro:macro>
 
 </robot>

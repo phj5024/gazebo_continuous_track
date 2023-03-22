@@ -54,4 +54,16 @@
         </xacro:make_track_plugin>
     </xacro:macro>
 
+    <xacro:macro name="make_flipper" params="name x:=^|0 y:=^|0 z:=^|0 roll:=^|0 pitch:=^|0 yaw:=^|0 mass:=^ length:=^ radius:=^ dradius:=^ width:=^ parent:=^ sprocket_joint:=^ pitch_diameter:=^ *material *pattern mu:=^|0.5 min_depth:=^|0.01 implicit_spring_damper:=^|1">
+        <xacro:populate_slope_segments name_prefix="${name}_straight_segment" x="${x - length / 2}" z="${z+radius}" pitch="${pitch}" dx="${length}" dz="${-2*radius + 2*dradius}" dpitch="${pi-pitch*2}" mass="${mass / 4}" size_x="${length}" size_y="${width}" size_z="${radius/2}" count="2">
+            <xacro:insert_block name="material" />
+        </xacro:populate_slope_segments>
+        <xacro:populate_diffarc_segments name_prefix="${name}_arc_segment" x="${x + length / 2}" z="${z+dradius}" dx="${-length}" dz="${-radius-dradius}" dpitch="${pi}" radius="${radius}" dradius="${dradius}" mass="${mass / 4}" length="${width}" count="2">
+            <xacro:insert_block name="material" />
+        </xacro:populate_diffarc_segments>
+        <xacro:make_track_plugin name="${name}">
+            <xacro:insert_block name="pattern" />
+        </xacro:make_track_plugin>
+    </xacro:macro>
+
 </robot>
